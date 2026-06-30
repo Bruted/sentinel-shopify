@@ -1,0 +1,28 @@
+[
+  {
+    "name": "Redeyed Sentinel",
+    "settings": [
+      {
+        "type": "header",
+        "content": "Redeyed Sentinel CAPTCHA"
+      },
+      {
+        "type": "paragraph",
+        "content": "Bot protection for your storefront forms. Get your Site Key from the Redeyed Lab → Developer → Sentinel → Sites. The Site Key is public and safe to store here. NEVER paste your secret API Key into the theme — it belongs on a server (see the app-proxy-verify example)."
+      },
+      {
+        "type": "text",
+        "id": "redeyed_site_key",
+        "label": "Site Key",
+        "info": "Public Site Key for this storefront (e.g. sk_live_xxxxxxxx)."
+      },
+      {
+        "type": "text",
+        "id": "redeyed_base_url",
+        "label": "Base URL",
+        "default": "https://redeyed.com",
+        "info": "Redeyed API/widget base URL. Leave as the default unless you run a self-hosted or staging instance."
+      }
+    ]
+  }
+]

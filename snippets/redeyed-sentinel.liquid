@@ -1,0 +1,51 @@
+{%- comment -%}
+  Redeyed Sentinel CAPTCHA snippet
+  --------------------------------
+  Renders the Sentinel widget on storefront forms.
+
+  Usage (inside a {% form %} block):
+    {% render 'redeyed-sentinel' %}
+    {% render 'redeyed-sentinel', widget: 'image_pick' %}
+    {% render 'redeyed-sentinel', widget: 'checkbox', theme: 'dark' %}
+
+  Configuration (Theme Editor -> Theme settings -> Redeyed Sentinel):
+    settings.redeyed_site_key  (public Site Key, safe to expose in the theme)
+    settings.redeyed_base_url  (defaults to https://redeyed.com)
+
+  The Site Key is PUBLIC by design. The secret API Key must NEVER appear
+  in the theme; token verification happens server-side (see app-proxy-verify/).
+
+  The widget injects a hidden input named "sentinel-token" into the form.
+
+  NOTE on loading the script once:
+    Shopify's {% render %} runs each snippet in an isolated scope, so a Liquid
+    variable cannot reliably track "already loaded" across multiple renders.
+    Instead, the loader below uses a tiny inline guard on window so the
+    sentinel.js <script> tag is only injected into the DOM a single time,
+    no matter how many forms render this snippet.
+{%- endcomment -%}
+
+{%- assign sentinel_site_key = settings.redeyed_site_key -%}
+{%- assign sentinel_base_url = settings.redeyed_base_url | default: 'https://redeyed.com' -%}
+
+{%- if sentinel_site_key == blank -%}
+  {%- comment -%} No Site Key configured yet — render nothing rather than a broken widget. {%- endcomment -%}
+{%- else -%}
+  <script>
+    (function () {
+      if (window.__redeyedSentinelLoaded) { return; }
+      window.__redeyedSentinelLoaded = true;
+      var s = document.createElement('script');
+      s.src = {{ sentinel_base_url | append: '/sentinel.js' | json }};
+      s.async = true;
+      document.head.appendChild(s);
+    })();
+  </script>
+
+  <div
+    class="sentinel-captcha"
+    data-sitekey="{{ sentinel_site_key | escape }}"
+    {%- if widget %} data-widget="{{ widget | escape }}"{%- endif -%}
+    {%- if theme %} data-theme="{{ theme | escape }}"{%- endif -%}
+  ></div>
+{%- endif -%}

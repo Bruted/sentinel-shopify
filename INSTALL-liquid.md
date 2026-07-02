@@ -41,11 +41,11 @@ Validate the JSON (no trailing commas) before saving.
 ## 3. Set your Site Key
 
 Theme Editor → **Theme settings** → **Redeyed Sentinel** → paste your **Site
-Key** (from Redeyed Lab → Developer → Sentinel → Sites). Leave **Base URL** as
+Key** (from Redeyed Lab → Sentinel → Sites). Leave **Base URL** as
 `https://redeyed.com` unless you self-host.
 
-The Site Key is public and safe in the theme. Do **not** put the secret API key
-here.
+The Site Key is public and safe in the theme. Do **not** put the Secret Key
+here — it belongs on your server only (see `app-proxy-verify/`).
 
 ## 4. Render the widget inside each form
 

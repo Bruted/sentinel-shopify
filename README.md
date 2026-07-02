@@ -4,8 +4,8 @@ Add Redeyed Sentinel bot protection to your Shopify storefront forms — contact
 newsletter, customer login, and customer registration.
 
 **Free to install.** Rendering the widget is theme-only and costs nothing.
-Verification (actually checking the token) requires a server/app and your
-Redeyed API key.
+Verification (actually checking the token) requires a server/app and your site's
+Redeyed Secret Key.
 
 ## What's in this package
 
@@ -25,16 +25,16 @@ Redeyed API key.
    and safe to keep in the theme.
 
 2. **Verify (server only).** A server you control receives the submitted
-   `sentinel-token` and POSTs it to `{base_url}/api/v1/verify` with your **secret
-   API key** in the `X-Api-Key` header. The API key must **never** be in the
-   theme.
+   `sentinel-token` and POSTs it to `{base_url}/sentinel/siteverify` with your
+   site's **Secret Key** in the request body (reCAPTCHA/Turnstile-style — no
+   developer API key). The Secret Key must **never** be in the theme.
 
 ```
-POST {base_url}/api/v1/verify
-X-Api-Key: <secret api key>
-{ "site_key": "<public site key>", "token": "<sentinel-token>" }
+POST {base_url}/sentinel/siteverify
+{ "secret": "<secret key>", "response": "<sentinel-token>", "remoteip": "<client ip>" }
 
-success when  data.success === true  OR  success === true
+response  { "success": true|false, "outcome": "...", "score": N }
+success when  success === true
 ```
 
 ## Honest note on Shopify's constraints
@@ -55,11 +55,12 @@ than a hard block.
 
 ## Getting your keys
 
-In **Redeyed Lab → Developer → Sentinel**:
+Both keys come from **Redeyed Lab → Sentinel → Sites**:
 
-- **Sites** → **Site Key** (public) — paste into Theme Editor → Theme settings →
-  Redeyed Sentinel.
-- **API Keys** → secret API key — set as `SENTINEL_API_KEY` on your server only.
+- **Site Key** (public) — paste into Theme Editor → Theme settings →
+  Redeyed Sentinel. Still the key that renders the widget.
+- **Secret Key** — set as `SENTINEL_SECRET_KEY` on your server only. It is shown
+  only once when you create the site, so store it safely.
 
 ## Quick start
 

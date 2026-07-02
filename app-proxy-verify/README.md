@@ -6,13 +6,16 @@ a form submission on its own. To actually enforce the CAPTCHA you need a server
 that receives the submitted `sentinel-token` and verifies it against the Redeyed
 API before acting on the request.
 
+Verification uses a reCAPTCHA/Turnstile-style flow: this site's own **Secret
+Key** authenticates the verify call. There is **no developer API key** involved.
+
 ## Why a server is required
 
 Shopify storefront forms (`{% form 'contact' %}`, `{% form 'customer_login' %}`,
 `{% form 'create_customer' %}`, newsletter, etc.) **post directly to Shopify's
 own endpoints**. The theme is Liquid + JS only — you cannot run arbitrary code in
 the request path, so the theme cannot reject a submission server-side. Your
-secret API key also must never live in the theme (it is public to anyone who
+Secret Key also must never live in the theme (it is public to anyone who
 views source).
 
 So verification has to happen somewhere you control a server.
@@ -25,7 +28,7 @@ So verification has to happen somewhere you control a server.
    protected action itself. Shopify signs proxy requests so you can trust them.
 
 2. **Headless / custom storefront (Hydrogen, custom frontend)** — You own the
-   form handler, so call `verifySentinelToken()` server-side before creating the
+   form handler, so call `verifySentinelToken(token, remoteip)` server-side before creating the
    customer / sending the message via the Storefront or Admin API. This is the
    cleanest way to truly *block* bad submissions.
 
@@ -43,20 +46,22 @@ So verification has to happen somewhere you control a server.
 
 ## The contract
 
-`POST {SENTINEL_BASE_URL}/api/v1/verify`
+`POST {SENTINEL_BASE_URL}/sentinel/siteverify`
 
-- Header: `X-Api-Key: <your secret API key>`
-- JSON body: `{ "site_key": "<public site key>", "token": "<sentinel-token>" }`
-- Success when `data.success === true` **or** `success === true`.
+- No `X-Api-Key` header. The Secret Key travels in the body.
+- JSON body: `{ "secret": "<secret key>", "response": "<sentinel-token>" }`
+  plus optional `"remoteip": "<client ip>"`.
+- Response: `{ "success": true|false, "outcome": "...", "score": N }`.
+- Success when `success === true`.
 
 ## Run the example
 
 ```bash
 cd app-proxy-verify
 npm install
-export SENTINEL_SITE_KEY=sk_live_xxxxxxxx     # public Site Key
-export SENTINEL_API_KEY=secret_xxxxxxxx        # SECRET — server only
-export SENTINEL_BASE_URL=https://redeyed.com   # optional
+export SENTINEL_SITE_KEY=sk_live_xxxxxxxx        # public Site Key (renders widget)
+export SENTINEL_SECRET_KEY=ssk_live_xxxxxxxx     # SECRET Key — server only
+export SENTINEL_BASE_URL=https://redeyed.com     # optional
 npm start
 ```
 
@@ -83,7 +88,16 @@ if (!success) throw new Error('Bot check failed');
 
 ## Keys
 
-Generate keys in **Redeyed Lab → Developer → Sentinel**:
+Both keys come from **Redeyed Lab → Sentinel → Sites**:
 
-- **Sites** → Site Key (public, goes in the theme).
-- **API Keys** → secret API key (server only, set as `SENTINEL_API_KEY`).
+- **Site Key** (public, goes in the theme — still renders the widget).
+- **Secret Key** (server only, set as `SENTINEL_SECRET_KEY`). It is shown only
+  once when you create the site, so store it safely.
+
+## Changelog
+
+- **1.0.1** — Verification now uses the per-site Secret Key
+  (reCAPTCHA/Turnstile-style) instead of a developer API key. Endpoint moved to
+  `POST /sentinel/siteverify` with body `{ secret, response, remoteip? }`; the
+  `X-Api-Key` header and `SENTINEL_API_KEY` are removed in favor of
+  `SENTINEL_SECRET_KEY`.

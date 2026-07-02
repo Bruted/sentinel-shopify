@@ -12,42 +12,51 @@
  *     behind a Shopify App Proxy, a webhook receiver, or any external endpoint.
  *
  * Required environment variables:
- *   SENTINEL_SITE_KEY   public Site Key for the storefront
- *   SENTINEL_API_KEY    SECRET API key — keep this on the server ONLY
- *   SENTINEL_BASE_URL   optional, defaults to https://redeyed.com
+ *   SENTINEL_SITE_KEY     public Site Key for the storefront (renders the widget)
+ *   SENTINEL_SECRET_KEY   SECRET Key for this site — keep this on the server ONLY
+ *   SENTINEL_BASE_URL     optional, defaults to https://redeyed.com
+ *
+ * Verification uses a reCAPTCHA/Turnstile-style flow: the site's own Secret Key
+ * authenticates the verify call (no developer API key). Both keys come from the
+ * Redeyed Lab → Sentinel → Sites; the Secret Key is shown only once.
  *
  * Node 18+ (global fetch). No external runtime deps required for the helper;
  * Express is only used for the example HTTP server.
  */
 
 const SITE_KEY = process.env.SENTINEL_SITE_KEY;
-const API_KEY = process.env.SENTINEL_API_KEY;
+const SECRET_KEY = process.env.SENTINEL_SECRET_KEY;
 const BASE_URL = process.env.SENTINEL_BASE_URL || 'https://redeyed.com';
 
 /**
  * Verify a Sentinel token with the Redeyed API.
  *
  * @param {string} token - value of the hidden "sentinel-token" form field.
+ * @param {string} [remoteip] - optional client IP address for extra signal.
  * @returns {Promise<{ success: boolean, raw: any }>}
  */
-async function verifySentinelToken(token) {
-  if (!SITE_KEY || !API_KEY) {
-    throw new Error(
-      'Missing SENTINEL_SITE_KEY or SENTINEL_API_KEY environment variables.'
-    );
+async function verifySentinelToken(token, remoteip) {
+  // "Configured?" is based on the Secret Key being present — that is what
+  // authenticates the verify call.
+  if (!SECRET_KEY) {
+    throw new Error('Missing SENTINEL_SECRET_KEY environment variable.');
   }
   if (!token || typeof token !== 'string') {
     return { success: false, raw: { error: 'missing_token' } };
   }
 
-  const res = await fetch(`${BASE_URL}/api/v1/verify`, {
+  const payload = { secret: SECRET_KEY, response: token };
+  if (remoteip) {
+    payload.remoteip = remoteip;
+  }
+
+  const res = await fetch(`${BASE_URL}/sentinel/siteverify`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
       'Accept': 'application/json',
-      'X-Api-Key': API_KEY,
     },
-    body: JSON.stringify({ site_key: SITE_KEY, token }),
+    body: JSON.stringify(payload),
   });
 
   let body;
@@ -57,10 +66,8 @@ async function verifySentinelToken(token) {
     body = null;
   }
 
-  // Contract: success when data.success === true OR success === true.
-  const success =
-    !!body &&
-    ((body.data && body.data.success === true) || body.success === true);
+  // Contract: response is { success, outcome, score }. Passes when success === true.
+  const success = !!body && body.success === true;
 
   return { success, raw: body };
 }
@@ -89,7 +96,12 @@ app.post('/verify', async (req, res) => {
   }
 
   try {
-    const { success, raw } = await verifySentinelToken(token);
+    // Forward the client IP as the optional remoteip signal.
+    const remoteip =
+      (req.headers['x-forwarded-for'] || '').split(',')[0].trim() ||
+      req.socket?.remoteAddress ||
+      undefined;
+    const { success, raw } = await verifySentinelToken(token, remoteip);
     if (success) {
       // Token is valid — continue your own logic here (create record, forward
       // the request to Shopify Admin API, allow the action, etc.).

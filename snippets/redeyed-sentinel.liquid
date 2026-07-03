@@ -7,6 +7,7 @@
     {% render 'redeyed-sentinel' %}
     {% render 'redeyed-sentinel', widget: 'image_pick' %}
     {% render 'redeyed-sentinel', widget: 'checkbox', theme: 'dark' %}
+    {% render 'redeyed-sentinel', widget: 'press_hold', difficulty: 'hard' %}
 
   Configuration (Theme Editor -> Theme settings -> Redeyed Sentinel):
     settings.redeyed_site_key  (public Site Key, safe to expose in the theme)
@@ -47,5 +48,6 @@
     data-sitekey="{{ sentinel_site_key | escape }}"
     {%- if widget %} data-widget="{{ widget | escape }}"{%- endif -%}
     {%- if theme %} data-theme="{{ theme | escape }}"{%- endif -%}
+    {%- if difficulty %} data-difficulty="{{ difficulty | escape }}"{%- endif -%}
   ></div>
 {%- endif -%}

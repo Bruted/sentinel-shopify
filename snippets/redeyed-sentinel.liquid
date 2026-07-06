@@ -7,12 +7,13 @@
     {% render 'redeyed-sentinel' %}
     {% render 'redeyed-sentinel', widget: 'image_pick' %}
     {% render 'redeyed-sentinel', widget: 'checkbox', theme: 'dark' %}
+    {% render 'redeyed-sentinel', widget: 'press_hold', difficulty: 'hard' %}
 
   Configuration (Theme Editor -> Theme settings -> Redeyed Sentinel):
     settings.redeyed_site_key  (public Site Key, safe to expose in the theme)
     settings.redeyed_base_url  (defaults to https://redeyed.com)
 
-  The Site Key is PUBLIC by design. The secret API Key must NEVER appear
+  The Site Key is PUBLIC by design. The Secret Key must NEVER appear
   in the theme; token verification happens server-side (see app-proxy-verify/).
 
   The widget injects a hidden input named "sentinel-token" into the form.
@@ -47,5 +48,6 @@
     data-sitekey="{{ sentinel_site_key | escape }}"
     {%- if widget %} data-widget="{{ widget | escape }}"{%- endif -%}
     {%- if theme %} data-theme="{{ theme | escape }}"{%- endif -%}
+    {%- if difficulty %} data-difficulty="{{ difficulty | escape }}"{%- endif -%}
   ></div>
 {%- endif -%}

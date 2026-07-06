@@ -1,6 +1,6 @@
 {
   "name": "redeyed-sentinel-shopify-verify",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "Server-side Redeyed Sentinel CAPTCHA token verification example for Shopify (App Proxy / webhook / external endpoint).",
   "type": "commonjs",
   "main": "verify.js",

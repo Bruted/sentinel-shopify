@@ -8,7 +8,7 @@
       },
       {
         "type": "paragraph",
-        "content": "Bot protection for your storefront forms. Get your Site Key from the Redeyed Lab → Developer → Sentinel → Sites. The Site Key is public and safe to store here. NEVER paste your secret API Key into the theme — it belongs on a server (see the app-proxy-verify example)."
+        "content": "Bot protection for your storefront forms. Get your Site Key from the Redeyed Lab → Sentinel → Sites. The Site Key is public and safe to store here. NEVER paste your Secret Key into the theme — it belongs on a server (see the app-proxy-verify example)."
       },
       {
         "type": "text",

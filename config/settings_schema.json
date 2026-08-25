@@ -21,7 +21,7 @@
         "id": "redeyed_base_url",
         "label": "Base URL",
         "default": "https://redeyed.com",
-        "info": "Redeyed API/widget base URL. Leave as the default unless you run a self-hosted or staging instance."
+        "info": "Redeyed API/widget base URL. Leave as the default unless you point at a custom or staging instance."
       }
     ]
   }

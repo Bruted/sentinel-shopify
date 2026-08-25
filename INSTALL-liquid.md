@@ -42,7 +42,7 @@ Validate the JSON (no trailing commas) before saving.
 
 Theme Editor → **Theme settings** → **Redeyed Sentinel** → paste your **Site
 Key** (from Redeyed Lab → Sentinel → Sites). Leave **Base URL** as
-`https://redeyed.com` unless you self-host.
+`https://redeyed.com` unless you point at a custom endpoint.
 
 The Site Key is public and safe in the theme. Do **not** put the Secret Key
 here — it belongs on your server only (see `app-proxy-verify/`).

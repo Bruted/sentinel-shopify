@@ -113,8 +113,8 @@ included in the post.
 ## 5. Optional: widget style / theme
 
 ```liquid
-{% render 'redeyed-sentinel', widget: 'image_pick' %}
-{% render 'redeyed-sentinel', widget: 'checkbox', theme: 'dark' %}
+{% render 'redeyed-sentinel', widget: 'shape_match' %}
+{% render 'redeyed-sentinel', widget: 'adaptive', theme: 'dark' %}
 ```
 
 `widget` and `theme` are passed through to `data-widget` / `data-theme` on the
